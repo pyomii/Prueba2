@@ -83,11 +83,11 @@ public class CuentaBancaria {
     private void guardarHistorial(String linea) {
         try {
             if (cantiMovimientos >= historial.length) {
-                throw new IndexOutOfBoundsException("El historial de movimientos se ha llenado");
+                throw new IllegalStateException("El historial de movimientos se ha llenado");
             }
             historial[cantiMovimientos] = linea;
             cantiMovimientos++;
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IllegalStateException e) {
             System.out.println("Alerta: " + e.getMessage());
         }
     }
