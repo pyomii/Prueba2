@@ -9,26 +9,57 @@ public class CuentaBancaria {
     protected String cliente;
     protected double saldo;
     protected double tasa;
-    protected Calendar creacion;
-    protected ArrayList<String> historial;
+    protected Calendar apertura;
+    
+    protected String moneda;
+    protected TipoCuenta tipo;
+    protected String[] historial = new String[50];
+    protected int cantiMovimientos = 0;
 
     public CuentaBancaria(int numero, String cliente, double tasa) {
         this.numero = numero;
         this.cliente = cliente;
+        this.moneda = moneda;
         this.tasa = tasa;
-        this.saldo = 500;
-        this.creacion = Calendar.getInstance();
-        this.historial = new ArrayList<>();
-        this.historial.add("Cuenta creada con saldo inicial de 500 Lps.");
+        this.saldo = 0;
+        this.apertura = Calendar.getInstance();
     }
 
+    public int getNumero() {
+        return numero;
+    }
+
+    public String getCliente() {
+        return cliente;
+    }
+
+    public double getTasa() {
+        return tasa;
+    }
+
+    public Calendar getApertura() {
+        return apertura;
+    }
+
+    public String getMoneda() {
+        return moneda;
+    }
+
+    public TipoCuenta getTipo() {
+        return tipo;
+    }
+    
+    public double getSaldo(){
+        return saldo;
+    }
+    
     public void depositar(double monto){
         try{
             if(monto<=0){
                 System.out.println("Insuficiente saldo");
             }else{
                 saldo+=monto;
-                historial.add("Depósito: "+monto);
+                guardarHistorial("Cantidad depositada: $" +monto+ " saldo: " + saldo);
             }
         }catch (Exception e){
             System.out.println(e.getMessage());
@@ -38,31 +69,40 @@ public class CuentaBancaria {
     public boolean retirar(double monto){
         if(monto>0 && saldo>=monto){
             saldo-=monto;
-            historial.add("Retiro: - "+monto);
+            guardarHistorial("Cantidad retirada: -$ " +monto);
             return true;
         }
-        historial.add("Intento de retiro fallido: "+monto);
+        guardarHistorial("Intento de retiro fallido: " +monto);
         return false;
-    }
-    public void mostrarHistorial(){
-        System.out.println("===== HISTORIAL DE "+cliente.toUpperCase()+" ======");
-        for(String registro:historial)
-            System.out.println(registro);
-    }
-
-    public double getSaldo(){
-        return saldo;
     }
 
     public String toString(){
         return String.format("Cuenta #%d | %s | $%.2f",numero,cliente,saldo);
     }
-    public void transferir(double monto, CuentaBancaria destino){
-        if(this.retirar(monto)) {
-            destino.depositar(monto);
-            this.historial.add("Transferencia enviada a # " + destino.numero + " : " + monto);
-        }else {
-            System.out.println("Transferencia fallida!");
+    
+    private void guardarHistorial(String linea) {
+        try {
+            if (cantiMovimientos >= historial.length) {
+                throw new IndexOutOfBoundsException("El historial de movimientos se ha llenado");
+            }
+            historial[cantiMovimientos] = linea;
+            cantiMovimientos++;
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Alerta: " + e.getMessage());
         }
+    }
+    
+    public void imprimirHistorial(){
+        System.out.println("=== HISTORIAL DE MOVIMIENTOS (" + numero + ") ===");
+    }
+    
+    public void registrarIntereses(){
+        if (tipo!=null) {
+            double ganancia = saldo * tipo.tasa();
+            saldo+=ganancia;
+        }
+    }
+    public void quienSoy() {
+        System.out.println("CuentaBancaria(clase base)");
     }
 }
